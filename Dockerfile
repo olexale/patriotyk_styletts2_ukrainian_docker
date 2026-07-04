@@ -55,11 +55,16 @@ ENV \
     GRADIO_ANALYTICS_ENABLED=False
 
 RUN apt-get update \
-    && apt-get install --no-install-recommends -y git \
+    && apt-get install --no-install-recommends -y git libgomp1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 COPY $SOURCE_DIR_NAME/ .
+# Override the pristine HF-Space files with our viseme-timed patches:
+#  - app.py: adds the /synthesize_timed API (audio + phoneme timeline)
+#  - requirements.txt: pins styletts2-inference to the olexale fork with pred_dur output
+COPY overrides/app.py ./app.py
+COPY overrides/requirements.txt ./requirements.txt
 COPY --chmod=+x entrypoint.sh .
 COPY entrypoint.py .
 
